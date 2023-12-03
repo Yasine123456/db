@@ -1,0 +1,213 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+CREATE DATABASE IF NOT EXISTS `test` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `test`;
+
+CREATE TABLE IF NOT EXISTS `address` (
+  `addressID` int NOT NULL,
+  `StreetName` varchar(50) NOT NULL,
+  `ZipCode` varchar(5) DEFAULT NULL,
+  `StateCode` varchar(5) NOT NULL,
+  `City` varchar(20) NOT NULL,
+  PRIMARY KEY (`addressID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `address` (`addressID`, `StreetName`, `ZipCode`, `StateCode`, `City`) VALUES
+	(1, '375 S 9 ST', '95112', 'CA', 'San Jose');
+
+CREATE TABLE IF NOT EXISTS `author` (
+  `AuthorID` int NOT NULL,
+  `AuthorName` varchar(30) NOT NULL,
+  `BookID` int NOT NULL,
+  PRIMARY KEY (`AuthorID`),
+  KEY `FK_BookAuthor` (`BookID`),
+  CONSTRAINT `FK_BookAuthor` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `author` (`AuthorID`, `AuthorName`, `BookID`) VALUES
+	(1, 'Lewis Carroll', 1),
+	(2, 'Homére', 2),
+	(3, 'Lois Lowry', 3);
+
+CREATE TABLE IF NOT EXISTS `book` (
+  `BookID` int NOT NULL,
+  `Author` int DEFAULT NULL,
+  `BookTitle` varchar(30) NOT NULL,
+  `BookISBN` varchar(10) DEFAULT NULL,
+  `Price` int DEFAULT NULL,
+  `Publisher` int DEFAULT NULL,
+  `Genre` int DEFAULT NULL,
+  PRIMARY KEY (`BookID`),
+  KEY `FK_AuthorBook` (`Author`) USING BTREE,
+  KEY `FK_PriceBook` (`Price`) USING BTREE,
+  KEY `FK_PublisherBook` (`Publisher`) USING BTREE,
+  KEY `FK_BookGenre` (`Genre`) USING BTREE,
+  CONSTRAINT `FK_book_author` FOREIGN KEY (`Author`) REFERENCES `author` (`AuthorID`),
+  CONSTRAINT `FK_book_genres` FOREIGN KEY (`Genre`) REFERENCES `genres` (`GenreID`),
+  CONSTRAINT `FK_book_price` FOREIGN KEY (`Price`) REFERENCES `price` (`PriceID`),
+  CONSTRAINT `FK_book_publisher` FOREIGN KEY (`Publisher`) REFERENCES `publisher` (`PublisherID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `book` (`BookID`, `Author`, `BookTitle`, `BookISBN`, `Price`, `Publisher`, `Genre`) VALUES
+	(1, 1, 'Alice down the rabbit hole', '12345', 1, 1, 1),
+	(2, 2, 'L\'Odyssée', '67890', 2, 2, 2),
+	(3, 3, 'The Giver', '13579', 3, 3, 3);
+
+CREATE TABLE `cataloger_view` (
+	`BookTitle` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`BookISBN` VARCHAR(10) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`AuthorName` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`GenreType` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`InventoryQuantity` INT(10) NULL
+) ENGINE=MyISAM;
+
+CREATE TABLE IF NOT EXISTS `employee` (
+  `EmployeeID` int NOT NULL,
+  `EmployeeName` varchar(30) NOT NULL,
+  PRIMARY KEY (`EmployeeID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `employee` (`EmployeeID`, `EmployeeName`) VALUES
+	(1, 'Yassine Benlahmr'),
+	(2, 'Johnson Bao'),
+	(3, 'Sharon Le');
+
+CREATE TABLE `employee_view` (
+	`BookTitle` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`BookISBN` VARCHAR(10) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`AuthorName` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`GenreType` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`InventoryQuantity` INT(10) NULL,
+	`PriceValue` INT(10) NULL,
+	`Username` VARCHAR(20) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`date_borrowed` DATE NULL,
+	`return_date` DATE NULL
+) ENGINE=MyISAM;
+
+CREATE TABLE IF NOT EXISTS `genres` (
+  `GenreID` int NOT NULL,
+  `GenreType` varchar(30) NOT NULL,
+  `BookID` int DEFAULT NULL,
+  PRIMARY KEY (`GenreID`),
+  KEY `FK_GenreBook` (`BookID`),
+  CONSTRAINT `FK_GenreBook` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `genres` (`GenreID`, `GenreType`, `BookID`) VALUES
+	(1, 'Fairy Tale', 1),
+	(2, 'Antiquity Book', 2),
+	(3, 'Science Fiction', 3);
+
+CREATE TABLE IF NOT EXISTS `inventory` (
+  `InventoryID` int NOT NULL,
+  `BookID` int DEFAULT NULL,
+  `Quantity` int DEFAULT NULL,
+  PRIMARY KEY (`InventoryID`),
+  KEY `FK_InventoryBook` (`BookID`),
+  CONSTRAINT `FK_InventoryBook` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `inventory` (`InventoryID`, `BookID`, `Quantity`) VALUES
+	(1, 1, 91),
+	(2, 2, 21),
+	(3, 3, 12);
+
+CREATE TABLE IF NOT EXISTS `price` (
+  `PriceID` int NOT NULL DEFAULT '0',
+  `PriceValue` int DEFAULT NULL,
+  `BookID` int DEFAULT NULL,
+  PRIMARY KEY (`PriceID`),
+  KEY `FK_BookPrice` (`BookID`),
+  CONSTRAINT `FK_BookPrice` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `price` (`PriceID`, `PriceValue`, `BookID`) VALUES
+	(1, 9, 1),
+	(2, 14, 2),
+	(3, 18, 3);
+
+CREATE TABLE IF NOT EXISTS `publisher` (
+  `PublisherID` int NOT NULL,
+  `BookID` int DEFAULT NULL,
+  `PublisherName` varchar(30) NOT NULL,
+  PRIMARY KEY (`PublisherID`),
+  KEY `FK_BookPublisher` (`BookID`),
+  CONSTRAINT `FK_BookPublisher` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `publisher` (`PublisherID`, `BookID`, `PublisherName`) VALUES
+	(1, 1, 'Glénat'),
+	(2, 2, 'McSweeney\'s'),
+	(3, 3, 'Penguin Books');
+
+CREATE TABLE IF NOT EXISTS `report` (
+  `ReportID` int NOT NULL,
+  `UserID` int DEFAULT NULL,
+  `BookID` int DEFAULT NULL,
+  `PriceID` int DEFAULT NULL,
+  `addressID` int DEFAULT NULL,
+  `date_borrowed` date DEFAULT NULL,
+  `return_date` date DEFAULT NULL,
+  PRIMARY KEY (`ReportID`),
+  KEY `FK_ReportUser` (`UserID`),
+  KEY `FK_ReportBook` (`BookID`),
+  KEY `FK_ReportPrice` (`PriceID`),
+  KEY `FK_AddressReport` (`addressID`),
+  CONSTRAINT `FK_AddressReport` FOREIGN KEY (`addressID`) REFERENCES `address` (`addressID`),
+  CONSTRAINT `FK_ReportBook` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`),
+  CONSTRAINT `FK_ReportPrice` FOREIGN KEY (`PriceID`) REFERENCES `price` (`PriceID`),
+  CONSTRAINT `FK_ReportUser` FOREIGN KEY (`UserID`) REFERENCES `user` (`UserID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `report` (`ReportID`, `UserID`, `BookID`, `PriceID`, `addressID`, `date_borrowed`, `return_date`) VALUES
+	(1, 1, 1, 1, 1, '2023-09-12', '2023-10-12'),
+	(2, 2, 2, 2, 1, '2023-10-13', '2023-11-14'),
+	(3, 3, 3, 3, 1, '2023-11-11', '2023-12-11');
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `UserID` int NOT NULL,
+  `Username` varchar(20) NOT NULL,
+  `UserPassword` varchar(20) NOT NULL,
+  `BookID` int DEFAULT NULL,
+  PRIMARY KEY (`UserID`),
+  KEY `BookID` (`BookID`),
+  CONSTRAINT `user_ibfk_1` FOREIGN KEY (`BookID`) REFERENCES `book` (`BookID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `user` (`UserID`, `Username`, `UserPassword`, `BookID`) VALUES
+	(1, 'yassine123', 'password123', 1),
+	(2, 'johnson_02', 'johnson123', 2),
+	(3, 'sharon91', 'password123', 3),
+	(4, 'demouser', 'demopassword', NULL);
+
+CREATE TABLE `user_view` (
+	`BookTitle` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`BookISBN` VARCHAR(10) NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`AuthorName` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`PriceValue` INT(10) NULL,
+	`PublisherName` VARCHAR(30) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+	`date_borrowed` DATE NULL,
+	`return_date` DATE NULL
+) ENGINE=MyISAM;
+
+DROP TABLE IF EXISTS `cataloger_view`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `cataloger_view` AS select `book`.`BookTitle` AS `BookTitle`,`book`.`BookISBN` AS `BookISBN`,`author`.`AuthorName` AS `AuthorName`,`genres`.`GenreType` AS `GenreType`,`inventory`.`Quantity` AS `InventoryQuantity` from (((`book` join `author` on((`book`.`Author` = `author`.`AuthorID`))) join `genres` on((`book`.`Genre` = `genres`.`GenreID`))) join `inventory` on((`book`.`BookID` = `inventory`.`BookID`)));
+
+DROP TABLE IF EXISTS `employee_view`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `employee_view` AS select `book`.`BookTitle` AS `BookTitle`,`book`.`BookISBN` AS `BookISBN`,`author`.`AuthorName` AS `AuthorName`,`genres`.`GenreType` AS `GenreType`,`inventory`.`Quantity` AS `InventoryQuantity`,`price`.`PriceValue` AS `PriceValue`,`user`.`Username` AS `Username`,`report`.`date_borrowed` AS `date_borrowed`,`report`.`return_date` AS `return_date` from ((((((`book` join `author` on((`book`.`Author` = `author`.`AuthorID`))) join `genres` on((`book`.`Genre` = `genres`.`GenreID`))) join `inventory` on((`book`.`BookID` = `inventory`.`BookID`))) join `price` on((`book`.`Price` = `price`.`PriceID`))) join `user` on((`book`.`BookID` = `user`.`BookID`))) join `report` on((`book`.`BookID` = `report`.`BookID`)));
+
+DROP TABLE IF EXISTS `user_view`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `user_view` AS select `book`.`BookTitle` AS `BookTitle`,`book`.`BookISBN` AS `BookISBN`,`author`.`AuthorName` AS `AuthorName`,`price`.`PriceValue` AS `PriceValue`,`publisher`.`PublisherName` AS `PublisherName`,`report`.`date_borrowed` AS `date_borrowed`,`report`.`return_date` AS `return_date` from ((((`book` join `author` on((`book`.`Author` = `author`.`AuthorID`))) join `price` on((`book`.`BookID` = `price`.`BookID`))) join `publisher` on((`book`.`Publisher` = `publisher`.`PublisherID`))) join `report` on((`book`.`BookID` = `report`.`BookID`)));
+
+/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;
